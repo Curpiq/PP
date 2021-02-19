@@ -3,17 +3,21 @@
 #include <windows.h>
 #include <string>
 #include <iostream>
+#include <sstream>
 
 
 DWORD WINAPI ThreadProc(CONST LPVOID lpParam)
 {
-	std::cout << "thread number " << *(int*)lpParam << " is working" << std::endl;
+	std::stringstream ss;
+	ss << "Поток №" << *(int*)lpParam << " выполняет свою работу\n";
+	std::cout << ss.str();
 	ExitThread(0); // функция устанавливает код завершения потока в 0
 }
 
 
 int main(int argc, char* argv[])
 {
+	setlocale(LC_ALL, "ru");
 	if (argc != 2)
 	{
 		return 1;
@@ -22,7 +26,7 @@ int main(int argc, char* argv[])
 	HANDLE* handles = new HANDLE[threadCount];
 	for (int i = 0; i < threadCount; i++)
 	{
-		handles[i] = CreateThread(NULL, 0, &ThreadProc, new int(i), CREATE_SUSPENDED, NULL);
+		handles[i] = CreateThread(NULL, 0, &ThreadProc, new int(i + 1), CREATE_SUSPENDED, NULL);
 		ResumeThread(handles[i]);
 	}
 	WaitForMultipleObjects(threadCount, handles, true, INFINITE);
